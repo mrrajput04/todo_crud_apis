@@ -1,5 +1,5 @@
-const tagsSchema = require('../models/tags');
-const todoSchema = require('../models/todo')
+// const todo = require('../models/tags');
+const{todo,tags} = require('../models/todo')
 
 exports.addTags = async(req,res) => {
   const userId = req.body._id;
@@ -7,11 +7,11 @@ exports.addTags = async(req,res) => {
  const add = req.body;
 
  try {
-      const addr = await tagsSchema(add).save();
+      const addr = await tags(add).save();
       console.log(addr,'--->>')
-      const data = await todoSchema.findOne({ _id: userId });
+      const data = await todo.findOne({ _id: userId });
       console.log(data,'===<<')
-      let arr = selectedTags.push(addr);
+      let arr = data.selectedTags.push(addr);
       console.log(arr,'==>')
       await data.save();
       // console.log(data,'=====<<<')

@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const tags = require('./tags')
 
 const Schema = mongoose.Schema;
 
@@ -10,7 +9,21 @@ const todoSchema = new Schema(
     selectedTags: [{ type: Schema.Types.ObjectId, ref: "tags" }],
     // selectedTags: {type:String},
     isCompleted: { type: String, default: false },
-  },{ timestamps: true });
+  },
+  { timestamps: true }
+);
 
-module.exports = mongoose.model("todoSchema", todoSchema, "todo");
+const tagsSchema = new Schema(
+  {
+    todo_id: { type: Schema.Types.ObjectId, ref: "todo" },
+    selectedTags: String,
+    color: { type: String, required: true },
+    name: { type: String, required: true },
+  },
+  { timestamps: true }
+);
 
+const todo = mongoose.model("todo", todoSchema);
+const tags = mongoose.model("tags", tagsSchema);
+
+module.exports = { todo, tags };
