@@ -1,9 +1,11 @@
 const todoSchema = require('../models/todo');
+const tagsSchema = require('../models/tags');
 
 exports.addTodo = async(req,res) => {
     try {
         const todo = new todoSchema(req.body);
     const savedData = await todo.save();
+    console.log(savedData,'===<<<')
     return res.status(200).json({
         message: 'item added successfully. ',
         savedData: ({todo_Id:savedData._id})
@@ -14,11 +16,14 @@ exports.addTodo = async(req,res) => {
   };
 
 exports.showTodo = async(req,res) =>{
+  Id = req.body._id;
     try{
-        const showTodo = await todoSchema.find();
+        const showTodo = await todoSchema.findById(Id);
+        Ids = showTodo.selectedTags
+        const tags = await tagsSchema.find({"_id" : {"$in" : Ids }})
         return res.status(200).json({
             message: 'Todo' ,
-            allTodo: showTodo
+            allTodo: {showTodo,tags}
           });
         } catch (error) {
           res.status(400).json({ message: error.message });

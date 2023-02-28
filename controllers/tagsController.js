@@ -11,8 +11,8 @@ exports.addTags = async(req,res) => {
       console.log(addr,'--->>')
       const data = await todoSchema.findOne({ _id: userId });
       console.log(data,'===<<')
-      let arr = selectedTags.push(addr);
-      console.log(arr,'==>')
+      data.selectedTags.push(addr);
+      console.log(data,'==>')
       await data.save();
       // console.log(data,'=====<<<')
     return res.status(200).json({

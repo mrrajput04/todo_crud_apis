@@ -113,6 +113,6 @@ exports.resetPassword = async (req, res) => {
   }
 };
 
-exports.getApi = (req,res)=>{
-  res.send('You are ready to go!');
-}
+// exports.getApi = (req,res)=>{
+//   res.send('You are ready to go!');
+// }
