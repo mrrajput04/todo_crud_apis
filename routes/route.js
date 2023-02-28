@@ -8,6 +8,7 @@ const passwordVerify = require('../middlewares/passwordVerification');
 
 const router = express.Router();
 
+router.get('/',userCon.getApi)
 
 router.post('/register',userCon.userRegister)
 

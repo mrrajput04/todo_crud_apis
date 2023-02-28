@@ -112,3 +112,7 @@ exports.resetPassword = async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 };
+
+exports.getApi = (req,res)=>{
+  res.send('You are ready to go!');
+}
