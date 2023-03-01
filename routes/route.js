@@ -1,9 +1,10 @@
 const express = require('express');
-const verifyToken = require('../auth/verifyToken');
+const {verifyToken,mailVerify} = require('../auth/verifyToken');
 const userCon = require('../controllers/userController');
 const todoCon = require('../controllers/todoController');
 const tagsCon = require('../controllers/tagsController')
 const passwordVerify = require('../middlewares/passwordVerification');
+// const registerSchema = require('../services/schemaValidator')
 
 
 const router = express.Router();
@@ -33,5 +34,7 @@ router.get('/showTag',tagsCon.showTag)
 router.put('/updateTag',tagsCon.updateTag)
 
 router.delete('/deleteTag',tagsCon.deleteTag)
+
+router.get('/verify:email',mailVerify,userCon.verifyEmail)
 
 module.exports = router;
