@@ -1,7 +1,14 @@
-const { todoSchema, tagsSchema } = require("../models");
+const { todoSchema, tagsSchema, userData } = require("../models");
+const CustomErrorHandler = require('../error/CustomErrorHandler')
+
 
 exports.addTodo = async (req, res) => {
+  const Id = req.token._id;
   try {
+    const user = userData.findById(_id)
+    if(!user){
+      return CustomErrorHandler.notFound('user not found');
+    }
     const todo = new todoSchema(req.body);
     const savedData = await todo.save();
     return res.status(200).json({

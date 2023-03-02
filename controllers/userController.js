@@ -1,17 +1,20 @@
-const { userData } = require("../models");
+const { userData, otpSchema } = require("../models");
 const bcrypt = require("bcrypt");
 const Joi = require("joi");
 const JwtService = require("../services/JwtService");
 const jwt = require("jsonwebtoken");
-const { JWT_SECRET, PASSWORD } = require("../config");
+const { JWT_SECRET } = require("../config");
 const CustomErrorHandler = require("../error/CustomErrorHandler");
 const { emailService } = require("../services/emailVerify");
+const { otpEmail } = require("../services/otpEmail");
+const otpGenerator = require("otp-generator");
+const path = require("path");
 
 const salt = 10;
 
-exports.getApi = (req,res)=>{
-  res.send('You are ready to go!');
-}
+exports.getApi = (req, res) => {
+  res.send("You are ready to go!");
+};
 
 exports.userRegister = async (req, res, next) => {
   const registerSchema = Joi.object({
@@ -54,7 +57,10 @@ exports.userRegister = async (req, res, next) => {
     const result = await user.save();
     access_token = JwtService.sign({ _id: result._id });
     emailService(result.email, access_token, header);
-    res.status(200).json({ access_token });
+    res.status(200).json({
+      message:
+        "User registered successfully, Please check your email to verify",
+    });
   } catch (err) {
     return next(err);
   }
@@ -79,15 +85,26 @@ exports.userLogin = async (req, res, next) => {
 
 exports.forgetPassword = async (req, res, next) => {
   try {
+    console.log(req.body.email, "===>")
     const exist = await userData.exists({ email: req.body.email });
     if (!exist) {
       return next(CustomErrorHandler.notFound("invalid email"));
     }
-    const token = jwt.sign({ user_id: exist._id }, JWT_SECRET, {
-      expiresIn: "2h",
+    const otp = otpGenerator.generate(6, {
+      upperCaseAlphabets: false,
+      specialChars: false,
+      lowerCaseAlphabets: false,
     });
+    console.log(otp, "==<<");
+    const otpSave = new otpSchema({otp});
+    await otpSave.save();
+    otpEmail(otp, req.body.email);
 
-    res.status(200).json({ access_token: token });
+    // const token = jwt.sign({ user_id: exist._id }, JWT_SECRET, {
+    //   expiresIn: "2h",
+    // });
+
+    res.status(200).json({ message: 'check your email to reset password'  });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -96,6 +113,7 @@ exports.forgetPassword = async (req, res, next) => {
 exports.resetPassword = async (req, res) => {
   try {
     const Id = req.token.user_id;
+
     const password = req.body.password;
     const hashedPassword = await bcrypt.hash(password, salt);
     const user = await userData.findByIdAndUpdate(
@@ -112,40 +130,18 @@ exports.resetPassword = async (req, res) => {
   }
 };
 
-
-exports.verifyEmail = async(req,res,next) =>{
-  try{
-   
+exports.verifyEmail = async (req, res, next) => {
+  try {
     const Id = req.auth._id;
-    const user  = await userData.findById(Id);
-    if(!user){
-      
-      return next(CustomErrorHandler.unAuthorized("unauthorized access"))
+    const user = await userData.findById(Id);
+    if (!user) {
+      res.sendFile(path.join(__dirname, "../view/notVerify.html"));
+      return next(CustomErrorHandler.unAuthorized("unauthorized access"));
     }
-
     user.isVerified = true;
-      await user.save();
-    res.status(200).json({message:"you are verified"})
-  } catch(error){
-    return next(CustomErrorHandler.unAuthorized("unauthorized access"))
+    await user.save();
+    res.sendFile(path.join(__dirname, "../view/verify.html"));
+  } catch (error) {
+    return next(CustomErrorHandler.unAuthorized("unauthorized access"));
   }
-
-
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+};
