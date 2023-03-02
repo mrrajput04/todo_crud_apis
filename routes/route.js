@@ -1,15 +1,16 @@
 const express = require('express');
-const {verifyToken,mailVerify} = require('../auth/verifyToken');
+const {verifyToken} = require('../auth/verifyToken');
 const userCon = require('../controllers/userController');
 const todoCon = require('../controllers/todoController');
 const tagsCon = require('../controllers/tagsController')
 const passwordVerify = require('../middlewares/passwordVerification');
-// const registerSchema = require('../services/schemaValidator')
+const verify = require('../view/verify')
+const {emailService} = require('../services/emailVerify')
 
 
 const router = express.Router();
 
-// router.get('/',userCon.getApi)
+router.get('/',userCon.getApi)
 
 router.post('/register',userCon.userRegister)
 
@@ -35,6 +36,6 @@ router.put('/updateTag',tagsCon.updateTag)
 
 router.delete('/deleteTag',tagsCon.deleteTag)
 
-router.get('/verify:email',mailVerify,userCon.verifyEmail)
+router.get('/verify:email',emailService,userCon.verifyEmail)
 
 module.exports = router;

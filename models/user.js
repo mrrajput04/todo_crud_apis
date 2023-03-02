@@ -22,10 +22,10 @@ const userSchema = Schema({
         type:String,
         required:true
     },
-    isVerified:{
+    isVerified: {
         type: Boolean,
-        default: false
-    },
+        default: false,
+      },
     token: { type: String }
 })
 
