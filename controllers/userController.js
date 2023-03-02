@@ -9,6 +9,10 @@ const { emailService } = require("../services/emailVerify");
 
 const salt = 10;
 
+exports.getApi = (req,res)=>{
+  res.send('You are ready to go!');
+}
+
 exports.userRegister = async (req, res, next) => {
   const registerSchema = Joi.object({
     firstName: Joi.string().min(3).max(15).required(),
@@ -118,7 +122,7 @@ exports.verifyEmail = async(req,res,next) =>{
       
       return next(CustomErrorHandler.unAuthorized("unauthorized access"))
     }
-    console.log(user,'--')
+
     user.isVerified = true;
       await user.save();
     res.status(200).json({message:"you are verified"})
@@ -144,6 +148,4 @@ exports.verifyEmail = async(req,res,next) =>{
 
 
 
-// exports.getApi = (req,res)=>{
-//   res.send('You are ready to go!');
-// }
+

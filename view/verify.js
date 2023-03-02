@@ -5,3 +5,4 @@ var pug = require('pug'),
   fn = pug.compile(str, {filename: path, pretty: true});
 
 console.log(fn());
+
