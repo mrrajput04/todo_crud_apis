@@ -1,14 +1,15 @@
-const userData = require('../models/user');
-const bcrypt = require('bcrypt');
-const Joi = require('joi');
-const JwtService = require('../services/JwtService')
-const jwt  = require('jsonwebtoken')
-const {JWT_SECRET} = require('../config')
-const CustomErrorHandler  = require('../error/CustomErrorHandler')
+const { userData } = require("../models");
+const bcrypt = require("bcrypt");
+const Joi = require("joi");
+const JwtService = require("../services/JwtService");
+const jwt = require("jsonwebtoken");
+const { JWT_SECRET, PASSWORD } = require("../config");
+const CustomErrorHandler = require("../error/CustomErrorHandler");
+const { emailService } = require("../services/emailVerify");
 
 const salt = 10;
 
-exports.userRegister = async (req, res, next)=>{
+exports.userRegister = async (req, res, next) => {
   const registerSchema = Joi.object({
     firstName: Joi.string().min(3).max(15).required(),
     lastName: Joi.string().min(3).max(15).required(),
@@ -34,9 +35,10 @@ exports.userRegister = async (req, res, next)=>{
   } catch (err) {
     return next(err);
   }
-  const { firstName,lastName, email, password } = req.body;
-  const hashedPassword = await bcrypt.hash(password, 10);
 
+  const { firstName, lastName, email, password } = req.body;
+  const hashedPassword = await bcrypt.hash(password, 10);
+  const header = req.headers.host;
   const user = new userData({
     firstName,
     lastName,
@@ -45,19 +47,14 @@ exports.userRegister = async (req, res, next)=>{
   });
   let access_token;
   try {
-    const result = await user.save(); 
-    //Token
-    access_token = JwtService.sign({ _id: result._id});
-    
-
-
+    const result = await user.save();
+    access_token = JwtService.sign({ _id: result._id });
+    emailService(result.email, access_token, header);
+    res.status(200).json({ access_token });
   } catch (err) {
     return next(err);
   }
-
-  res.status(200).json({ access_token });
-}
-
+};
 
 exports.userLogin = async (req, res, next) => {
   try {
@@ -68,7 +65,7 @@ exports.userLogin = async (req, res, next) => {
         expiresIn: "2h",
       });
       user.token = token;
-       return res.status(200).json({ access_token: user.token });
+      return res.status(200).json({ access_token: user.token });
     }
     res.status(400).send("Invalid Credentials");
   } catch (error) {
@@ -80,9 +77,7 @@ exports.forgetPassword = async (req, res, next) => {
   try {
     const exist = await userData.exists({ email: req.body.email });
     if (!exist) {
-      return next(
-        CustomErrorHandler.notFound("invalid email")
-      );
+      return next(CustomErrorHandler.notFound("invalid email"));
     }
     const token = jwt.sign({ user_id: exist._id }, JWT_SECRET, {
       expiresIn: "2h",
@@ -112,6 +107,42 @@ exports.resetPassword = async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 };
+
+
+exports.verifyEmail = async(req,res,next) =>{
+  try{
+   
+    const Id = req.auth._id;
+    const user  = await userData.findById(Id);
+    if(!user){
+      
+      return next(CustomErrorHandler.unAuthorized("unauthorized access"))
+    }
+    console.log(user,'--')
+    user.isVerified = true;
+      await user.save();
+    res.status(200).json({message:"you are verified"})
+  } catch(error){
+    return next(CustomErrorHandler.unAuthorized("unauthorized access"))
+  }
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // exports.getApi = (req,res)=>{
 //   res.send('You are ready to go!');
