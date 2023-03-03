@@ -3,9 +3,9 @@ const CustomErrorHandler = require('../error/CustomErrorHandler')
 
 
 exports.addTodo = async (req, res) => {
-  const Id = req.token._id;
+  const Id = req.token.user_id;
   try {
-    const user = userData.findById(_id)
+    const user = userData.findById(Id)
     if(!user){
       return CustomErrorHandler.notFound('user not found');
     }
@@ -24,11 +24,11 @@ exports.showTodo = async (req, res) => {
   Id = req.body._id;
   try {
     const showTodo = await todoSchema.findById(Id);
-    Ids = showTodo.selectedTags;
-    const tags = await tagsSchema.find({ _id: { $in: Ids } });
+    // Ids = showTodo.selectedTags;
+    // const tags = await tagsSchema.find({ _id: { $in: Ids } });
     return res.status(200).json({
       message: "Todo",
-      allTodo: { showTodo, tags },
+      allTodo: { showTodo },
     });
   } catch (error) {
     res.status(400).json({ message: error.message });

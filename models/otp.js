@@ -4,7 +4,10 @@ const Schema = mongoose.Schema;
 const otpSchema = new Schema({
     otp:{
         type:Number,
-    }
+    },
+    email:{
+        type:String
+    },
 },{timestamps:true},);
 
 

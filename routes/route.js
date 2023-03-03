@@ -18,11 +18,13 @@ router.post('/login',userCon.userLogin)
 
 router.post('/forgot-password',userCon.forgetPassword)
 
+router.post('/otpVerification',userCon.otpVerify)
+
 router.put('/verify-reset-password',verifyToken,passwordVerify,userCon.resetPassword)
 
-router.post('/addTodo',todoCon.addTodo)
+router.post('/addTodo',verifyToken,todoCon.addTodo)
 
-router.get('/allTodo',todoCon.showTodo)
+router.get('/showTodo',verifyToken,todoCon.showTodo)
 
 router.put('/updateTodo',todoCon.updateTodo)
 

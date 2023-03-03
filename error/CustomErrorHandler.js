@@ -13,6 +13,9 @@ class CustomErrorHandler extends Error {
   static unAuthorized(message = "unauthorized login") {
     return new CustomErrorHandler(401, message);
   }
+  static wrongOtp(message = "invalid otp"){
+    return new CustomErrorHandler(401,message);
+  }
   static alreadyExist(message) {
     return new CustomErrorHandler(409, message);
   }

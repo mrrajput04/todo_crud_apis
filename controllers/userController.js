@@ -85,8 +85,8 @@ exports.userLogin = async (req, res, next) => {
 
 exports.forgetPassword = async (req, res, next) => {
   try {
-    console.log(req.body.email, "===>")
-    const exist = await userData.exists({ email: req.body.email });
+    const email  =  req.body.email 
+    const exist = await userData.exists({ email});
     if (!exist) {
       return next(CustomErrorHandler.notFound("invalid email"));
     }
@@ -95,14 +95,11 @@ exports.forgetPassword = async (req, res, next) => {
       specialChars: false,
       lowerCaseAlphabets: false,
     });
-    console.log(otp, "==<<");
-    const otpSave = new otpSchema({otp});
+    const otpSave = new otpSchema({otp,email});
     await otpSave.save();
     otpEmail(otp, req.body.email);
 
-    // const token = jwt.sign({ user_id: exist._id }, JWT_SECRET, {
-    //   expiresIn: "2h",
-    // });
+    
 
     res.status(200).json({ message: 'check your email to reset password'  });
   } catch (error) {
@@ -110,10 +107,30 @@ exports.forgetPassword = async (req, res, next) => {
   }
 };
 
+exports.otpVerify = async(req,res, next) => {
+  try{
+    const{ email,otp }= req.body
+    const user = await userData.findOne({email});
+    if(!user){
+      return next(CustomErrorHandler.notFound("invalid email"));
+    }
+    const userExist = await otpSchema.findOne({email, otp});
+    if(!userExist){
+      return next(CustomErrorHandler.wrongOtp("invalid otp"));
+    }
+    const token = jwt.sign({ user_id: user._id }, JWT_SECRET, {
+      expiresIn: "2h",
+    });
+    res.status(200).json({access_token:token})
+  } catch(error){
+    res.status(400).json({ message: error.message });
+  }
+}
+
+
 exports.resetPassword = async (req, res) => {
   try {
     const Id = req.token.user_id;
-
     const password = req.body.password;
     const hashedPassword = await bcrypt.hash(password, salt);
     const user = await userData.findByIdAndUpdate(
@@ -123,7 +140,7 @@ exports.resetPassword = async (req, res) => {
     );
     res.status(200).json({
       message: "password updated successfully",
-      access_token: user,
+      
     });
   } catch (error) {
     res.status(400).json({ message: error.message });
