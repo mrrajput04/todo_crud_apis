@@ -1,9 +1,9 @@
-const { userData, otpSchema } = require("../models");
+const { userData, otpSchema, RefreshToken } = require("../models");
 const bcrypt = require("bcrypt");
 const Joi = require("joi");
 const JwtService = require("../services/JwtService");
 const jwt = require("jsonwebtoken");
-const { JWT_SECRET } = require("../config");
+const { JWT_SECRET, REFRESH_SECRET } = require("../config");
 const CustomErrorHandler = require("../error/CustomErrorHandler");
 const { emailService } = require("../services/emailVerify");
 const { otpEmail } = require("../services/otpEmail");
@@ -22,7 +22,7 @@ exports.userRegister = async (req, res, next) => {
     lastName: Joi.string().min(3).max(15).required(),
     email: Joi.string().email().required(),
     password: Joi.string()
-      .pattern(new RegExp("^[a-zA-z0-9]{3,30}$"))
+      .pattern(new RegExp("^[a-zA-z0-9!@#$]{5,30}$"))
       .required(),
     confirm_password: Joi.ref("password"),
   });
@@ -53,13 +53,16 @@ exports.userRegister = async (req, res, next) => {
     password: hashedPassword,
   });
   let access_token;
+  let refresh_token;
   try {
     const result = await user.save();
     access_token = JwtService.sign({ _id: result._id });
+    refresh_token = JwtService.sign({ _id: result._id }, REFRESH_SECRET,'1y');
+    await RefreshToken.create({token:refresh_token})
     emailService(result.email, access_token, header);
     res.status(200).json({
       message:
-        "User registered successfully, Please check your email to verify",
+        "User registered successfully, Please check your email to verify",refresh_token:refresh_token
     });
   } catch (err) {
     return next(err);
@@ -70,7 +73,10 @@ exports.userLogin = async (req, res, next) => {
   try {
     const { email, password } = req.body;
     const user = await userData.findOne({ email });
-    if (user && (await bcrypt.compare(password, user.password))) {
+    if(user.isVerified===false){
+      return res.status(400).json({message:'please verify your email'});
+    }
+    if(user && (await bcrypt.compare(password, user.password))) {
       const token = jwt.sign({ user_id: userData._id, email }, JWT_SECRET, {
         expiresIn: "2h",
       });
@@ -82,6 +88,12 @@ exports.userLogin = async (req, res, next) => {
     next(error);
   }
 };
+
+// exports.genAccessToken = async(req,res)=>{
+//   const Id = req.token.user_id;
+//   console.log(Id,'==<<<')
+//   res.send(Id)
+// };
 
 exports.forgetPassword = async (req, res, next) => {
   try {
@@ -98,9 +110,6 @@ exports.forgetPassword = async (req, res, next) => {
     const otpSave = new otpSchema({otp,email});
     await otpSave.save();
     otpEmail(otp, req.body.email);
-
-    
-
     res.status(200).json({ message: 'check your email to reset password'  });
   } catch (error) {
     res.status(400).json({ message: error.message });

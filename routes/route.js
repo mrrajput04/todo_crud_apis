@@ -1,5 +1,6 @@
 const express = require('express');
 const {verifyToken,mailVerify} = require('../auth/verifyToken');
+const refreshTokenVerify = require('../auth/refreshTokenVerify')
 const userCon = require('../controllers/userController');
 const todoCon = require('../controllers/todoController');
 const tagsCon = require('../controllers/tagsController')
@@ -22,13 +23,15 @@ router.post('/otpVerification',userCon.otpVerify)
 
 router.put('/verify-reset-password',verifyToken,passwordVerify,userCon.resetPassword)
 
+// router.post('/access-token-generate',refreshTokenVerify,userCon.genAccessToken)
+
 router.post('/addTodo',verifyToken,todoCon.addTodo)
 
 router.get('/showTodo',verifyToken,todoCon.showTodo)
 
-router.put('/updateTodo',todoCon.updateTodo)
+router.put('/updateTodo',verifyToken,todoCon.updateTodo)
 
-router.delete('/deleteTodo',todoCon.deleteTodo)
+router.delete('/deleteTodo',verifyToken,todoCon.deleteTodo)
 
 router.post('/addTags',tagsCon.addTags)
 

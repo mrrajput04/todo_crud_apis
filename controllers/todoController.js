@@ -21,7 +21,7 @@ exports.addTodo = async (req, res) => {
 };
 
 exports.showTodo = async (req, res) => {
-  Id = req.body._id;
+  const Id = req.token.user_id;
   try {
     const showTodo = await todoSchema.findById(Id);
     // Ids = showTodo.selectedTags;

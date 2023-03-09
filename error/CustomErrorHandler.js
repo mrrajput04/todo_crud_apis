@@ -16,7 +16,7 @@ class CustomErrorHandler extends Error {
   static wrongOtp(message = "invalid otp"){
     return new CustomErrorHandler(401,message);
   }
-  static alreadyExist(message) {
+  static alreadyExist(message="already exists") {
     return new CustomErrorHandler(409, message);
   }
   static notFound(message = "404 not found") {
