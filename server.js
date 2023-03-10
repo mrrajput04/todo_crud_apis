@@ -2,10 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const routes = require("./routes/route");
 const { PORT, DBURL } = require("./config/index");
-const { Router } = require("express");
 const cors = require("cors");
-// const path = require('path');
-// const ejs = require("ejs");
 
 mongoose.set("strictQuery", false);
 
@@ -21,7 +18,6 @@ database.once("connected", () => {
 
 app = express();
 app.use(express.json());
-// app.set("view engine", "ejs");
 
 app.use(
   cors({
@@ -31,12 +27,12 @@ app.use(
     optionsSuccessStatus: 204,
   })
 );
+
 app.use("/user", routes);
 
-// app.get('/', function(req, res) {
-
-//   res.sendFile(path.join(__dirname, './view/verify.html'));
-// });
+app.use((error, req, res, next) => {
+  res.status(error.status || 500).json(error.message);
+});
 
 app.listen(PORT, () => {
   console.log(`server is running on ${PORT}`);
