@@ -22,7 +22,7 @@ exports.userRegister = async (req, res, next) => {
     lastName: Joi.string().min(3).max(15).required(),
     email: Joi.string().email().required(),
     password: Joi.string()
-      .pattern(new RegExp("^[a-zA-z0-9!@#$]{5,30}$"))
+      .pattern(new RegExp("^[a-zA-z0-9!@#$]{5,30}$")).min(6).max(30)
       .required(),
     confirm_password: Joi.ref("password"),
   });
@@ -31,6 +31,7 @@ exports.userRegister = async (req, res, next) => {
   if (error) {
     return next(error);
   }
+ 
 
   try {
     const exist = await userData.exists({ email: req.body.email });

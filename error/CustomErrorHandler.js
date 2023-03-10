@@ -22,6 +22,9 @@ class CustomErrorHandler extends Error {
   static notFound(message = "404 not found") {
     return new CustomErrorHandler(404, message);
   }
+  static passLength(message = "password must be 5 characters  long") {
+    return new CustomErrorHandler(400, message);
+  }
 }
 
 module.exports = CustomErrorHandler;
