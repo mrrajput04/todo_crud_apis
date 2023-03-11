@@ -1,7 +1,7 @@
 const nodemailer = require("nodemailer");
 const { PASSWORD } = require("../config");
 
-function emailService(email, access_token, header,otp) {
+function otpEmail(otp, email) {
   const transporter = nodemailer.createTransport({
     service: "outlook",
     auth: {
@@ -14,16 +14,16 @@ function emailService(email, access_token, header,otp) {
   });
 
   const mailOptions = {
-    from: '"Verify your email" <diveshkumar012r@outlook.com>',
+    from: '"otp to reset password" <diveshkumar012r@outlook.com>',
     to: email,
-    subject: "verify your email",
+    subject: "otp to reset password",
     html: `
     <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-  <title>Verify your email address</title>
+  <title>otp to reset password</title>
   <style type="text/css" rel="stylesheet" media="all">
     /* Base ------------------------------ */
     *:not(br):not(tr):not(html) {
@@ -207,8 +207,7 @@ function emailService(email, access_token, header,otp) {
                 <!-- Body content -->
                 <tr>
                   <td class="content-cell">
-                    <h1>Verify your email address</h1>
-                    <p>Thanks for signing up for Todo! We're excited to have you.</p>
+                    <h1>Password reset otp</h1>
                     <!-- Action -->
                     <table class="body-action" align="center" width="100%" cellpadding="0" cellspacing="0">
                       <tr>
@@ -217,9 +216,9 @@ function emailService(email, access_token, header,otp) {
                             <!--[if mso]><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{action_url}}" style="height:45px;v-text-anchor:middle;width:200px;" arcsize="7%" stroke="f" fill="t">
                             <v:fill type="tile" color="#414EF9" />
                             <w:anchorlock/>
-                            <center style="color:#ffffff;font-family:sans-serif;font-size:15px;">Verify Email</center>
+                            <center style="color:#ffffff;font-family:sans-serif;font-size:15px;">${otp}</center>
                           </v:roundrect><![endif]-->
-                          <a href="http://${header}/user/verify:email?token=${access_token}" target="_blank" class="button button--blue" style="display: inline-block; padding: 16px 36px; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; color: #ffffff; text-decoration: none; border-radius: 6px;">Click to verify</a>
+                          <a href="http://{header}/user/verify:email?token={access_token}" target="_blank" class="button button--blue" style="display: inline-block; padding: 16px 36px; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; color: #ffffff; text-decoration: none; border-radius: 6px;">${otp}</a>
                           </div>
                         </td>
                       </tr>
@@ -248,14 +247,6 @@ function emailService(email, access_token, header,otp) {
   </table>
 </body>
 </html> `,
-
-     // <h2>${
-    //   user.firstName + user.lastName
-    // }! Thanks for registering on our site </h2>
-     //   <h4>Please verify your mail to continue</h4>
-     //   <a href="http://${
-    //   req.headers.host
-    // }/user/verify:email?token=${access_token}">verify your email</a>
   };
 
   transporter.sendMail(mailOptions, function (error, info) {
@@ -267,4 +258,4 @@ function emailService(email, access_token, header,otp) {
   });
 }
 
-module.exports = { emailService };
+module.exports = { otpEmail };

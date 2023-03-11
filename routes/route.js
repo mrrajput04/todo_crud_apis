@@ -1,11 +1,12 @@
 const express = require('express');
-const {verifyToken} = require('../auth/verifyToken');
+const {verifyToken,mailVerify} = require('../auth/verifyToken');
+const refreshTokenVerify = require('../auth/refreshTokenVerify')
 const userCon = require('../controllers/userController');
 const todoCon = require('../controllers/todoController');
 const tagsCon = require('../controllers/tagsController')
 const passwordVerify = require('../middlewares/passwordVerification');
-const verify = require('../view/verify')
-const {emailService} = require('../services/emailVerify')
+// const verify = require('../view/verify')
+// const {emailService} = require('../services/emailVerify')
 
 
 const router = express.Router();
@@ -18,15 +19,19 @@ router.post('/login',userCon.userLogin)
 
 router.post('/forgot-password',userCon.forgetPassword)
 
+router.post('/otpVerification',userCon.otpVerify)
+
 router.put('/verify-reset-password',verifyToken,passwordVerify,userCon.resetPassword)
 
-router.post('/addTodo',todoCon.addTodo)
+// router.post('/access-token-generate',refreshTokenVerify,userCon.genAccessToken)
 
-router.get('/allTodo',todoCon.showTodo)
+router.post('/addTodo',verifyToken,todoCon.addTodo)
 
-router.put('/updateTodo',todoCon.updateTodo)
+router.get('/showTodo',verifyToken,todoCon.showTodo)
 
-router.delete('/deleteTodo',todoCon.deleteTodo)
+router.put('/updateTodo',verifyToken,todoCon.updateTodo)
+
+router.delete('/deleteTodo',verifyToken,todoCon.deleteTodo)
 
 router.post('/addTags',tagsCon.addTags)
 
@@ -36,6 +41,6 @@ router.put('/updateTag',tagsCon.updateTag)
 
 router.delete('/deleteTag',tagsCon.deleteTag)
 
-router.get('/verify:email',emailService,userCon.verifyEmail)
+router.get('/verify:email',mailVerify,userCon.verifyEmail)
 
 module.exports = router;

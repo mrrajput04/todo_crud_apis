@@ -4,6 +4,6 @@ module.exports = {
     PORT:process.env.PORT,
     DBURL:process.env.DBURL,
     JWT_SECRET:process.env.JWT_SECRET,
-    api_key:process.env.api_key,
+    REFRESH_SECRET:process.env.REFRESH_SECRET,
     PASSWORD:process.env.PASSWORD
 }

@@ -13,11 +13,17 @@ class CustomErrorHandler extends Error {
   static unAuthorized(message = "unauthorized login") {
     return new CustomErrorHandler(401, message);
   }
-  static alreadyExist(message) {
+  static wrongOtp(message = "invalid otp"){
+    return new CustomErrorHandler(401,message);
+  }
+  static alreadyExist(message="already exists") {
     return new CustomErrorHandler(409, message);
   }
   static notFound(message = "404 not found") {
     return new CustomErrorHandler(404, message);
+  }
+  static passLength(message = "password must be 5 characters  long") {
+    return new CustomErrorHandler(400, message);
   }
 }
 

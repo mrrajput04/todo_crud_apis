@@ -1,24 +1,4 @@
-const nodemailer = require("nodemailer");
-const { PASSWORD } = require("../config");
-
-function emailService(email, access_token, header,otp) {
-  const transporter = nodemailer.createTransport({
-    service: "outlook",
-    auth: {
-      user: "diveshkumar012r@outlook.com",
-      pass: PASSWORD,
-    },
-    tls: {
-      rejectUnauthorized: false,
-    },
-  });
-
-  const mailOptions = {
-    from: '"Verify your email" <diveshkumar012r@outlook.com>',
-    to: email,
-    subject: "verify your email",
-    html: `
-    <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -194,52 +174,27 @@ function emailService(email, access_token, header,otp) {
     <tr>
       <td align="center">
         <table class="email-content" width="100%" cellpadding="0" cellspacing="0">
-          <!-- Logo -->
-          <tr>
-            <td class="email-masthead">
-              <a class="email-masthead_name">Todo</a>
-            </td>
-          </tr>
-          <!-- Email Body -->
           <tr>
             <td class="email-body" width="100%">
               <table class="email-body_inner" align="center" width="570" cellpadding="0" cellspacing="0">
-                <!-- Body content -->
                 <tr>
                   <td class="content-cell">
-                    <h1>Verify your email address</h1>
-                    <p>Thanks for signing up for Todo! We're excited to have you.</p>
-                    <!-- Action -->
+                    <h1>Congratulation</h1>
+                    <p>You are ready to go. </p>
                     <table class="body-action" align="center" width="100%" cellpadding="0" cellspacing="0">
                       <tr>
                         <td align="center">
                           <div>
-                            <!--[if mso]><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{action_url}}" style="height:45px;v-text-anchor:middle;width:200px;" arcsize="7%" stroke="f" fill="t">
-                            <v:fill type="tile" color="#414EF9" />
-                            <w:anchorlock/>
-                            <center style="color:#ffffff;font-family:sans-serif;font-size:15px;">Verify Email</center>
-                          </v:roundrect><![endif]-->
-                          <a href="http://${header}/user/verify:email?token=${access_token}" target="_blank" class="button button--blue" style="display: inline-block; padding: 16px 36px; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; color: #ffffff; text-decoration: none; border-radius: 6px;">Click to verify</a>
+                          <a href=" target="_blank" class="button button--blue" style="display: inline-block; padding: 16px 36px; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; color: #ffffff; text-decoration: none; border-radius: 6px;">Email verified</a>
                           </div>
                         </td>
                       </tr>
                     </table>
-                    <p>Thanks,<br>The Todo Team</p>
-                    <!-- Sub copy -->
             </td>
           </tr>
           <tr>
             <td>
-              <table class="email-footer" align="center" width="570" cellpadding="0" cellspacing="0">
-                <tr>
-                  <td class="content-cell">
-                    <p class="sub center">
-                      Todo 
-                      <br>Noida sector 8
-                    </p>
-                  </td>
-                </tr>
-              </table>
+              
             </td>
           </tr>
         </table>
@@ -247,24 +202,4 @@ function emailService(email, access_token, header,otp) {
     </tr>
   </table>
 </body>
-</html> `,
-
-     // <h2>${
-    //   user.firstName + user.lastName
-    // }! Thanks for registering on our site </h2>
-     //   <h4>Please verify your mail to continue</h4>
-     //   <a href="http://${
-    //   req.headers.host
-    // }/user/verify:email?token=${access_token}">verify your email</a>
-  };
-
-  transporter.sendMail(mailOptions, function (error, info) {
-    if (error) {
-      console.log(error);
-    } else {
-      console.log("verification email has been send");
-    }
-  });
-}
-
-module.exports = { emailService };
+</html> 
