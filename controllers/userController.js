@@ -39,7 +39,7 @@ exports.userRegister = async (req, res, next) => {
     const exist = await userData.exists({ email: req.body.email });
     if (exist) {
       return next(
-        CustomErrorHandler.alreadyExist("This email is already taken")
+        CustomErrorHandler.alreadyExist({message:'This email already exists'})
       );
     }
   } catch (err) {
@@ -87,7 +87,7 @@ exports.userLogin = async (req, res, next) => {
       user.token = token;
       return res.status(200).json({ access_token: user.token });
     }
-    res.status(400).send("Invalid Credentials");
+    res.status(400).json({message: 'Invalid email or password'});
   } catch (error) {
     next(error);
   }
@@ -104,7 +104,7 @@ exports.forgetPassword = async (req, res, next) => {
     const email = req.body.email;
     const exist = await userData.exists({ email });
     if (!exist) {
-      return next(CustomErrorHandler.notFound("invalid email"));
+      return next(CustomErrorHandler.notFound({message:'invalid email'}));
     }
     const otp = otpGenerator.generate(6, {
       upperCaseAlphabets: false,
@@ -114,7 +114,7 @@ exports.forgetPassword = async (req, res, next) => {
     const otpSave = new otpSchema({ otp, email });
     await otpSave.save();
     otpEmail(otp, req.body.email);
-    res.status(200).json({ message: "check your email to reset password" });
+    res.status(200).json({ message: 'check your email to reset password' });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -125,11 +125,11 @@ exports.otpVerify = async (req, res, next) => {
     const { email, otp } = req.body;
     const user = await userData.findOne({ email });
     if (!user) {
-      return next(CustomErrorHandler.notFound("invalid email"));
+      return next(CustomErrorHandler.notFound({message:'invalid email'}));
     }
     const userExist = await otpSchema.findOne({ email, otp });
     if (!userExist) {
-      return next(CustomErrorHandler.wrongOtp("invalid otp"));
+      return next(CustomErrorHandler.wrongOtp({message:'invalid otp'}));
     }
     const token = jwt.sign({ user_id: user._id }, JWT_SECRET, {
       expiresIn: "2h",
@@ -164,12 +164,12 @@ exports.verifyEmail = async (req, res, next) => {
     const user = await userData.findById(Id);
     if (!user) {
       res.sendFile(path.join(__dirname, "../view/notVerify.html"));
-      return next(CustomErrorHandler.unAuthorized("unauthorized access"));
+      return next(CustomErrorHandler.unAuthorized({message:'unauthorized access'}));
     }
     user.isVerified = true;
     await user.save();
     res.sendFile(path.join(__dirname, "../view/verify.html"));
   } catch (error) {
-    return next(CustomErrorHandler.unAuthorized("unauthorized access"));
+    return next(CustomErrorHandler.unAuthorized({message:'unauthorized access'}));
   }
 };
