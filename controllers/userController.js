@@ -30,11 +30,12 @@ exports.userRegister = async (req, res, next) => {
   });
 
   const { error } = registerSchema.validate(req.body);
+
   if (error) {
     error.status = 400;
     return next(error);
   }
-
+  
   try {
     const exist = await userData.exists({ email: req.body.email });
     if (exist) {
@@ -78,14 +79,14 @@ exports.userLogin = async (req, res, next) => {
     const { email, password } = req.body;
     const user = await userData.findOne({ email });
     if (user.isVerified === false) {
-      return res.status(400).json({ message: "please verify your email" });
+      return res.status(400).json({ message: 'please verify your email' });
     }
     if (user && (await bcrypt.compare(password, user.password))) {
       const token = jwt.sign({ user_id: userData._id, email }, JWT_SECRET, {
         expiresIn: "2h",
       });
       user.token = token;
-      return res.status(200).json({ access_token: user.token });
+      return res.status(200).json({ access_token: user.token, message:'login successful'});
     }
     res.status(400).json({message: 'Invalid email or password'});
   } catch (error) {
