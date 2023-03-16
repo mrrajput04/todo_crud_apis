@@ -29,11 +29,16 @@ router.post('/addTodo',verifyToken,todoCon.addTodo)
 
 router.get('/showTodo',verifyToken,todoCon.showTodo)
 
+router.get('/all-todo',verifyToken,todoCon.allTodo)
+
+
 router.put('/updateTodo',verifyToken,todoCon.updateTodo)
 
 router.delete('/deleteTodo',verifyToken,todoCon.deleteTodo)
 
 router.post('/addTags',tagsCon.addTags)
+
+router.get('/allTags',tagsCon.allTags)
 
 router.get('/showTag',tagsCon.showTag)
 

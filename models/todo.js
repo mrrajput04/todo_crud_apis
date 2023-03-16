@@ -7,7 +7,12 @@ const todoSchema = new Schema(
   {
     title: { type: String, required: true },
     description: { type: String },
-    selectedTags: [{ type: Schema.Types.ObjectId, ref: "tags" }],
+    selectedTags:[{
+      title:String,
+      color:String,
+
+    }],
+    // selectedTags: [{ type: Schema.Types.ObjectId, ref: "tags" }],
     // selectedTags: {type:String},
     isCompleted: { type: String, default: false },
   },{ timestamps: true });

@@ -78,17 +78,20 @@ exports.userLogin = async (req, res, next) => {
   try {
     const { email, password } = req.body;
     const user = await userData.findOne({ email });
+    if(!user){
+      return next(CustomErrorHandler.notFound({message:'invalid email'}));
+    }
     if (user.isVerified === false) {
       return res.status(400).json({ message: 'please verify your email' });
     }
     if (user && (await bcrypt.compare(password, user.password))) {
-      const token = jwt.sign({ user_id: userData._id, email }, JWT_SECRET, {
+      const token = jwt.sign({ user_id: user._id, email }, JWT_SECRET, {
         expiresIn: "2h",
       });
       user.token = token;
       return res.status(200).json({ access_token: user.token, message:'login successful'});
     }
-    res.status(400).json({message: 'Invalid email or password'});
+    res.status(400).json({message: 'Invalid  password'});
   } catch (error) {
     next(error);
   }

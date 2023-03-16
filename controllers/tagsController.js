@@ -19,6 +19,18 @@ exports.addTags = async (req, res) => {
   }
 };
 
+exports.allTags = async(req,res)=>{
+  try {
+    // const allTags = await tagsSchema.find();
+    return res.status(200).json({
+      message: "all tags",
+      tagName:["work","family","enjoyment","study"]
+    });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+}
+
 exports.showTag = async (req, res) => {
   try {
     const showTag = await tagsSchema.find().select("-updatedAt -__v");
