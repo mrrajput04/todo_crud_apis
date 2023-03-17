@@ -1,13 +1,15 @@
 const mongoose = require("mongoose");
 const tags = require('./tags')
+const userSchema = require('./user')
 
 const Schema = mongoose.Schema;
 
 const todoSchema = new Schema(
   {
+    user_Id:{type: String},
     title: { type: String, required: true },
     description: { type: String },
-    selectedTags:[{
+   tags:[{
       title:String,
       color:String,
 

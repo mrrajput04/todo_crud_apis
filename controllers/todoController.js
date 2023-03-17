@@ -1,16 +1,15 @@
 const { todoSchema, tagsSchema, userData } = require("../models");
-const CustomErrorHandler = require('../error/CustomErrorHandler')
-
+const CustomErrorHandler = require("../error/CustomErrorHandler");
 
 exports.addTodo = async (req, res) => {
-  const Id = req.token.user_id;
-  console.log(Id,'==<')
+  const user_Id = req.token.user_id;
   try {
-    const user = userData.findById(Id)
-    if(!user){
-      return CustomErrorHandler.notFound({message:'user not found'});
+    const user = userData.findById(user_Id);
+    if (!user) {
+      return CustomErrorHandler.notFound({ message: "user not found" });
     }
-    const todo = new todoSchema(req.body);
+    const updatedData = { user_Id, ...req.body };
+    const todo = new todoSchema(updatedData);
     const savedData = await todo.save();
     return res.status(200).json({
       message: "item added successfully. ",
@@ -21,27 +20,26 @@ exports.addTodo = async (req, res) => {
   }
 };
 
-exports.allTodo = async(req,res)=>{
-  const Id = req.token;
-  console.log(Id)
+exports.allTodo = async (req, res) => {
+  const user_Id = req.token.user_id;
+
   try {
-  //   const user = await userData.findById(Id)
-  //   if(!user){
-  //     return CustomErrorHandler.notFound({message:'user not found'});
-  //   }
-    // console.log(user,'==>')
-    const todo = await todoSchema.findById(Id);
-    res.status(200).json({AllTodo:todo})
-} catch(error){
-  res.status(400).json({ message: error.message });
-}
-}
+    const user = await userData.findById(user_Id);
+    if (!user) {
+      return CustomErrorHandler.notFound({ message: "user not found" });
+    }
+    const todo = await todoSchema.find({user_Id:user_Id});
+    res.status(200).json({ AllTodo: todo });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
 
 exports.showTodo = async (req, res) => {
   const Id = req.token.user_id;
-  console.log(Id,'==<<')
+
   try {
-    const showTodo = await todoSchema.findById(Id);
+    const showTodo = await todoSchema.findById(id);
     // Ids = showTodo.selectedTags;
     // const tags = await tagsSchema.find({ _id: { $in: Ids } });
     return res.status(200).json({

@@ -9,6 +9,7 @@ const { emailService } = require("../services/emailVerify");
 const { otpEmail } = require("../services/otpEmail");
 const otpGenerator = require("otp-generator");
 const path = require("path");
+const refreshToken = require("../models/refreshToken");
 
 const salt = 10;
 
@@ -62,7 +63,8 @@ exports.userRegister = async (req, res, next) => {
     const result = await user.save();
     access_token = JwtService.sign({ _id: result._id });
     refresh_token = JwtService.sign({ _id: result._id }, REFRESH_SECRET, "1y");
-    await RefreshToken.create({ token: refresh_token });
+    await refreshToken.create({ token: refresh_token });
+    res.cookie('refresh_token',refresh_token,{ domain: 'localhost:3000' });
     emailService(result.email, access_token, header);
     res.status(200).json({
       message:
@@ -97,11 +99,23 @@ exports.userLogin = async (req, res, next) => {
   }
 };
 
-// exports.genAccessToken = async(req,res)=>{
-//   const Id = req.token.user_id;
-//   console.log(Id,'==<<<')
-//   res.send(Id)
-// };
+exports.genAccessToken = async (req, res, next) => {
+  const Id = req.token._id;
+  try{
+    const user = await userData.findById(Id);
+    if(!user)
+    return next(CustomErrorHandler.notFound({message:'user not found'}));
+    
+      const token = jwt.sign({ user_id: user._id }, JWT_SECRET, {
+        expiresIn: "2h",
+      });
+      user.token = token;
+      return res.status(200).json({ access_token: user.token});
+    }
+     catch (error) {
+      next(error);
+    }
+};
 
 exports.forgetPassword = async (req, res, next) => {
   try {
@@ -115,8 +129,18 @@ exports.forgetPassword = async (req, res, next) => {
       specialChars: false,
       lowerCaseAlphabets: false,
     });
-    const otpSave = new otpSchema({ otp, email });
+
+    const   hashedOtp =  await bcrypt.hash(otp, 10);
+    const emailExists = await otpSchema.exists({ email });
+    console.log(emailExists,'===<<')    
+    if(emailExists){
+      const updateOtp = await otpSchema.findOneAndUpdate({email:email},{otp:hashedOtp},{ new: true })
+    }else{
+      const otpSave = new otpSchema({ otp:hashedOtp, email });
     await otpSave.save();
+    }
+    
+    
     otpEmail(otp, req.body.email);
     res.status(200).json({ message: 'check your email to reset password' });
   } catch (error) {
@@ -131,8 +155,10 @@ exports.otpVerify = async (req, res, next) => {
     if (!user) {
       return next(CustomErrorHandler.notFound({message:'invalid email'}));
     }
-    const userExist = await otpSchema.findOne({ email, otp });
-    if (!userExist) {
+    const userExist = await otpSchema.findOne({ email });
+    console.log(userExist)
+   const otpVerify = await bcrypt.compare(otp, userExist.otp)
+    if (!otpVerify) {
       return next(CustomErrorHandler.wrongOtp({message:'invalid otp'}));
     }
     const token = jwt.sign({ user_id: user._id }, JWT_SECRET, {

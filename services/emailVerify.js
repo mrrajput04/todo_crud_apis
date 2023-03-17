@@ -219,7 +219,7 @@ function emailService(email, access_token, header,otp) {
                             <w:anchorlock/>
                             <center style="color:#ffffff;font-family:sans-serif;font-size:15px;">Verify Email</center>
                           </v:roundrect><![endif]-->
-                          <a href="http://${header}/user/verify:email?token=${access_token}" target="_blank" class="button button--blue" style="display: inline-block; padding: 16px 36px; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; color: #ffffff; text-decoration: none; border-radius: 6px;">Click to verify</a>
+                          <a href="http://${header}/user/verify:email?token=${access_token}"  class="button button--blue" style="display: inline-block; padding: 16px 36px; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; color: #ffffff; text-decoration: none; border-radius: 6px;">Click to verify</a>
                           </div>
                         </td>
                       </tr>
