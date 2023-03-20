@@ -2,9 +2,8 @@ const express = require("express");
 const mongoose = require("mongoose");
 const routes = require("./routes/route");
 const { PORT, DBURL } = require("./config/index");
-var cookieParser = require('cookie-parser')
+var cookieParser = require("cookie-parser");
 const cors = require("cors");
-
 
 mongoose.set("strictQuery", false);
 
@@ -21,7 +20,6 @@ database.once("connected", () => {
 app = express();
 app.use(express.json());
 app.use(cookieParser());
-
 
 app.use(
   cors({

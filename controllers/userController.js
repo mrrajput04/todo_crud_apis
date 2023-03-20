@@ -1,4 +1,4 @@
-const { userData, otpSchema, RefreshToken } = require("../models");
+const { userData, otpSchema, refreshToken } = require("../models");
 const bcrypt = require("bcrypt");
 const Joi = require("joi");
 const JwtService = require("../services/JwtService");
@@ -9,7 +9,6 @@ const { emailService } = require("../services/emailVerify");
 const { otpEmail } = require("../services/otpEmail");
 const otpGenerator = require("otp-generator");
 const path = require("path");
-const refreshToken = require("../models/refreshToken");
 
 const salt = 10;
 
@@ -36,12 +35,14 @@ exports.userRegister = async (req, res, next) => {
     error.status = 400;
     return next(error);
   }
-  
+
   try {
     const exist = await userData.exists({ email: req.body.email });
     if (exist) {
       return next(
-        CustomErrorHandler.alreadyExist({message:'This email already exists'})
+        CustomErrorHandler.alreadyExist({
+          message: "This email already exists",
+        })
       );
     }
   } catch (err) {
@@ -64,7 +65,8 @@ exports.userRegister = async (req, res, next) => {
     access_token = JwtService.sign({ _id: result._id });
     refresh_token = JwtService.sign({ _id: result._id }, REFRESH_SECRET, "1y");
     await refreshToken.create({ token: refresh_token });
-    res.cookie('refresh_token',refresh_token,{ domain: 'localhost:3000' });
+    res.cookie("access_token", access_token, { domain: "localhost:3000" });
+    res.cookie("refresh_token", refresh_token, { domain: "localhost:3000" });
     emailService(result.email, access_token, header);
     res.status(200).json({
       message:
@@ -80,20 +82,22 @@ exports.userLogin = async (req, res, next) => {
   try {
     const { email, password } = req.body;
     const user = await userData.findOne({ email });
-    if(!user){
-      return next(CustomErrorHandler.notFound({message:'invalid email'}));
+    if (!user) {
+      return next(CustomErrorHandler.notFound({ message: "invalid email" }));
     }
     if (user.isVerified === false) {
-      return res.status(400).json({ message: 'please verify your email' });
+      return res.status(400).json({ message: "please verify your email" });
     }
     if (user && (await bcrypt.compare(password, user.password))) {
       const token = jwt.sign({ user_id: user._id, email }, JWT_SECRET, {
         expiresIn: "2h",
       });
       user.token = token;
-      return res.status(200).json({ access_token: user.token, message:'login successful'});
+      return res
+        .status(200)
+        .json({ access_token: user.token, message: "login successful" });
     }
-    res.status(400).json({message: 'Invalid  password'});
+    res.status(400).json({ message: "Invalid  password" });
   } catch (error) {
     next(error);
   }
@@ -101,20 +105,19 @@ exports.userLogin = async (req, res, next) => {
 
 exports.genAccessToken = async (req, res, next) => {
   const Id = req.token._id;
-  try{
+  try {
     const user = await userData.findById(Id);
-    if(!user)
-    return next(CustomErrorHandler.notFound({message:'user not found'}));
-    
-      const token = jwt.sign({ user_id: user._id }, JWT_SECRET, {
-        expiresIn: "2h",
-      });
-      user.token = token;
-      return res.status(200).json({ access_token: user.token});
-    }
-     catch (error) {
-      next(error);
-    }
+    if (!user)
+      return next(CustomErrorHandler.notFound({ message: "user not found" }));
+
+    const token = jwt.sign({ user_id: user._id }, JWT_SECRET, {
+      expiresIn: "2h",
+    });
+    user.token = token;
+    return res.status(200).json({ access_token: user.token });
+  } catch (error) {
+    next(error);
+  }
 };
 
 exports.forgetPassword = async (req, res, next) => {
@@ -122,27 +125,31 @@ exports.forgetPassword = async (req, res, next) => {
     const email = req.body.email;
     const exist = await userData.exists({ email });
     if (!exist) {
-      return next(CustomErrorHandler.notFound({message:'invalid email'}));
+      return next(CustomErrorHandler.notFound({ message: "invalid email" }));
     }
-    const otp = otpGenerator.generate(6, {
+    const otp = otpGenerator.generate(8, {
       upperCaseAlphabets: false,
       specialChars: false,
       lowerCaseAlphabets: false,
     });
+    // console.log(otp)
 
-    const   hashedOtp =  await bcrypt.hash(otp, 10);
+    const hashedOtp = await bcrypt.hash(otp, 10);
     const emailExists = await otpSchema.exists({ email });
-    console.log(emailExists,'===<<')    
-    if(emailExists){
-      const updateOtp = await otpSchema.findOneAndUpdate({email:email},{otp:hashedOtp},{ new: true })
-    }else{
-      const otpSave = new otpSchema({ otp:hashedOtp, email });
-    await otpSave.save();
+    // console.log(emailExists,'===<<')
+    if (emailExists) {
+      const updateOtp = await otpSchema.findOneAndUpdate(
+        { email: email },
+        { otp: hashedOtp },
+        { new: true }
+      );
+    } else {
+      const otpSave = new otpSchema({ otp: hashedOtp, email });
+      await otpSave.save();
     }
-    
-    
+
     otpEmail(otp, req.body.email);
-    res.status(200).json({ message: 'check your email to reset password' });
+    res.status(200).json({ message: "check your email to reset password" });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -153,13 +160,13 @@ exports.otpVerify = async (req, res, next) => {
     const { email, otp } = req.body;
     const user = await userData.findOne({ email });
     if (!user) {
-      return next(CustomErrorHandler.notFound({message:'invalid email'}));
+      return next(CustomErrorHandler.notFound({ message: "invalid email" }));
     }
     const userExist = await otpSchema.findOne({ email });
-    console.log(userExist)
-   const otpVerify = await bcrypt.compare(otp, userExist.otp)
+    console.log(userExist);
+    const otpVerify = await bcrypt.compare(otp, userExist.otp);
     if (!otpVerify) {
-      return next(CustomErrorHandler.wrongOtp({message:'invalid otp'}));
+      return next(CustomErrorHandler.wrongOtp({ message: "invalid otp" }));
     }
     const token = jwt.sign({ user_id: user._id }, JWT_SECRET, {
       expiresIn: "2h",
@@ -194,12 +201,16 @@ exports.verifyEmail = async (req, res, next) => {
     const user = await userData.findById(Id);
     if (!user) {
       res.sendFile(path.join(__dirname, "../view/notVerify.html"));
-      return next(CustomErrorHandler.unAuthorized({message:'unauthorized access'}));
+      return next(
+        CustomErrorHandler.unAuthorized({ message: "unauthorized access" })
+      );
     }
     user.isVerified = true;
     await user.save();
     res.sendFile(path.join(__dirname, "../view/verify.html"));
   } catch (error) {
-    return next(CustomErrorHandler.unAuthorized({message:'unauthorized access'}));
+    return next(
+      CustomErrorHandler.unAuthorized({ message: "unauthorized access" })
+    );
   }
 };

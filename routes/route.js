@@ -5,8 +5,6 @@ const userCon = require("../controllers/userController");
 const todoCon = require("../controllers/todoController");
 const tagsCon = require("../controllers/tagsController");
 const passwordVerify = require("../middlewares/passwordVerification");
-// const verify = require('../view/verify')
-// const {emailService} = require('../services/emailVerify')
 
 const router = express.Router();
 
@@ -34,6 +32,8 @@ router.post(
 );
 
 router.post("/addTodo", verifyToken, todoCon.addTodo);
+
+router.post("/completeTodo", verifyToken, todoCon.completeTodo);
 
 router.get("/showTodo", verifyToken, todoCon.showTodo);
 

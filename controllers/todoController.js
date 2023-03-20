@@ -28,15 +28,37 @@ exports.allTodo = async (req, res) => {
     if (!user) {
       return CustomErrorHandler.notFound({ message: "user not found" });
     }
-    const todo = await todoSchema.find({user_Id:user_Id});
+    const todo = await todoSchema.find({ user_Id: user_Id });
     res.status(200).json({ AllTodo: todo });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 };
 
+exports.completeTodo = async (req, res) => {
+  const user_Id = req.token.user_id;
+  try {
+    const user = await userData.findById(user_Id);
+    if (!user) {
+      return CustomErrorHandler.notFound({ message: "user not found" });
+    }
+    console.log(req.body,'==<')
+    const { isDone, _id } = req.body;
+    const todo = await todoSchema.findById(_id);
+    if (todo.isDone == true) {
+      return res.status(200).json({ message: "task already completed" });
+    } else {
+      todo.isDone = isDone;
+      await todo.save();
+      return res.status(200).json({ message: "task completed" });
+    }
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
 exports.showTodo = async (req, res) => {
-  const Id = req.token.user_id;
+  // const Id = req.token.user_id;
 
   try {
     const showTodo = await todoSchema.findById(id);
@@ -52,9 +74,19 @@ exports.showTodo = async (req, res) => {
 };
 
 exports.updateTodo = async (req, res) => {
+  const { title, description, tags, Id } = req.body;
   try {
-    const Id = req.query._id;
-    const updateTodo = await todoSchema.findById(Id);
+    const user_id = req.token.user_id;
+    const user = await userData.findById(user_id);
+    if (!user)
+      return CustomErrorHandler.notFound({ message: "user not found" });
+    const updateTodo = await todoSchema.findByIdAndUpdate(
+      Id,
+      { title: title, description: description },
+      {
+        new: true,
+      }
+    );
     return res.status(200).json({
       message: "todo updated successfully. ",
       updatedTodo: updateTodo,
@@ -66,7 +98,12 @@ exports.updateTodo = async (req, res) => {
 
 exports.deleteTodo = async (req, res) => {
   try {
-    const Id = req.query._id;
+    const user_id = req.token.user_id;
+    const user = await userData.findById(user_id);
+    if (!user)
+      return CustomErrorHandler.notFound({ message: "user not found" });
+
+    const Id = req.body._id;
     const deleteTodo = await todoSchema.findByIdAndDelete(Id);
     return res.status(200).json({
       message: "todo deleted successfully. ",
