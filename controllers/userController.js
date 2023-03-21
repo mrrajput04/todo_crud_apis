@@ -127,16 +127,13 @@ exports.forgetPassword = async (req, res, next) => {
     if (!exist) {
       return next(CustomErrorHandler.notFound({ message: "invalid email" }));
     }
-    const otp = otpGenerator.generate(8, {
+    const otp = otpGenerator.generate(6, {
       upperCaseAlphabets: false,
       specialChars: false,
       lowerCaseAlphabets: false,
     });
-    // console.log(otp)
-
     const hashedOtp = await bcrypt.hash(otp, 10);
     const emailExists = await otpSchema.exists({ email });
-    // console.log(emailExists,'===<<')
     if (emailExists) {
       const updateOtp = await otpSchema.findOneAndUpdate(
         { email: email },

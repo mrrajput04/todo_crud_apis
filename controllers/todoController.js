@@ -74,14 +74,14 @@ exports.showTodo = async (req, res) => {
 };
 
 exports.updateTodo = async (req, res) => {
-  const { title, description, tags, Id } = req.body;
+  const { title, description,  _id } = req.body;
   try {
     const user_id = req.token.user_id;
     const user = await userData.findById(user_id);
     if (!user)
       return CustomErrorHandler.notFound({ message: "user not found" });
     const updateTodo = await todoSchema.findByIdAndUpdate(
-      Id,
+      _id,
       { title: title, description: description },
       {
         new: true,
