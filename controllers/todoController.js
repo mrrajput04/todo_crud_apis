@@ -42,7 +42,6 @@ exports.completeTodo = async (req, res) => {
     if (!user) {
       return CustomErrorHandler.notFound({ message: "user not found" });
     }
-    console.log(req.body,'==<')
     const { isDone, _id } = req.body;
     const todo = await todoSchema.findById(_id);
     if (todo.isDone == true) {
@@ -74,7 +73,7 @@ exports.showTodo = async (req, res) => {
 };
 
 exports.updateTodo = async (req, res) => {
-  const { title, description,  _id } = req.body;
+  const { title, description, _id } = req.body;
   try {
     const user_id = req.token.user_id;
     const user = await userData.findById(user_id);
