@@ -10,6 +10,7 @@ exports.verifyToken = async (req, res, next) => {
   try {
     if (token) {
       const accessToken = jwt.verify(token, JWT_SECRET);
+      if (!accessToken) throw new Error("invalid access token");
       req.token = accessToken;
       next();
     }
