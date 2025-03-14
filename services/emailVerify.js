@@ -1,11 +1,15 @@
 const nodemailer = require("nodemailer");
 const { PASSWORD } = require("../config");
 
+
+
+
 function emailService(email, access_token, header,otp) {
+  
   const transporter = nodemailer.createTransport({
     service: "outlook",
     auth: {
-      user: "rajputdv123@outlook.com",
+      user: "cdanprajapati@outlook.com",
       pass: PASSWORD,
     },
     tls: {
@@ -14,7 +18,7 @@ function emailService(email, access_token, header,otp) {
   });
 
   const mailOptions = {
-    from: '"Verify your email" <rajputdv123@outlook.com>',
+    from: '"Verify your email" <cdanprajapati@outlook.com>',
     to: email,
     subject: "verify your email",
     html: `

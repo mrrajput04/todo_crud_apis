@@ -5,7 +5,7 @@ function otpEmail(otp, email) {
   const transporter = nodemailer.createTransport({
     service: "outlook",
     auth: {
-      user: "rajputdv123@outlook.com",
+      user: "cdanprajapati@outlook.com",
       pass: PASSWORD,
     },
     tls: {
@@ -14,7 +14,7 @@ function otpEmail(otp, email) {
   });
 
   const mailOptions = {
-    from: '"otp to reset password" <rajputdv123@outlook.com',
+    from: '"otp to reset password" <cdanprajapati@outlook.com',
     to: email,
     subject: "otp to reset password",
     html: `
