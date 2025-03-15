@@ -1,6 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const routes = require("./routes/route");
+const routes = require("./routes");
 const { PORT, DBURL } = require("./config/index");
 var cookieParser = require("cookie-parser");
 const cors = require("cors");
@@ -30,7 +30,9 @@ app.use(
   })
 );
 
-app.use("/user", routes);
+app.use("/user", routes.userRoutes);
+app.use("/todo", routes.todoRoutes);
+app.use("/tag", routes.tagRoutes);
 
 app.use((error, req, res, next) => {
   res.status(error.status || 500).json(error.message);
